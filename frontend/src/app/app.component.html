@@ -1,0 +1,151 @@
+<div class="app">
+  <div class="bg-grid"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__logo">PS</div>
+      <div>
+        <div class="brand__name">PartyScore Karaoke</div>
+        <div class="brand__tag">Sing → score → share → repeat</div>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <div class="pill" *ngIf="challengeScore != null">
+        Challenge: <strong>{{ challengeName || 'Someone' }}</strong> — <strong>{{ challengeScore }}</strong>/100
+      </div>
+      <div class="pill" *ngIf="personalBest">PB: <strong>{{ personalBest.score }}</strong></div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel panel--play">
+      <div class="panel__inner">
+        <h1 class="headline" *ngIf="stage !== 'results'">Prove you can sing.</h1>
+
+        <div class="error" *ngIf="error">{{ error }}</div>
+
+        <!-- ONBOARDING -->
+        <div *ngIf="stage === 'onboarding'" class="stack">
+          <p class="lead">One-screen arcade karaoke. We listen to your mic and give you a fun score.</p>
+
+          <label class="field">
+            <span>Your name (optional)</span>
+            <input [(ngModel)]="playerName" maxlength="18" placeholder="e.g. DJ Tuna" />
+          </label>
+
+          <button class="btn btn--primary" (click)="enableMic()">Enable mic & start</button>
+
+          <p class="hint">Tip: Use headphones to reduce echo.</p>
+        </div>
+
+        <!-- READY -->
+        <div *ngIf="stage === 'ready'" class="stack">
+          <p class="lead">Mic is live. When the countdown starts, just sing anything.</p>
+
+          <label class="field">
+            <span>Your name</span>
+            <input [(ngModel)]="playerName" maxlength="18" placeholder="Player" />
+          </label>
+
+          <div class="meters">
+            <div class="meter">
+              <div class="meter__label">Energy</div>
+              <div class="meter__bar">
+                <div class="meter__fill" [style.width.%]="levelBar * 100"></div>
+              </div>
+            </div>
+            <div class="meter meter--pitch">
+              <div class="meter__label">Pitch</div>
+              <div class="meter__value">{{ pitchNote || '—' }}</div>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--big" (click)="startRound()">Start 10s round</button>
+        </div>
+
+        <!-- SINGING -->
+        <div *ngIf="stage === 'singing'" class="stack">
+          <div class="countdown">{{ secondsLeft }}</div>
+
+          <div class="meters meters--live">
+            <div class="meter">
+              <div class="meter__label">Energy</div>
+              <div class="meter__bar meter__bar--tall">
+                <div class="meter__fill" [style.width.%]="levelBar * 100"></div>
+              </div>
+            </div>
+            <div class="meter meter--pitch">
+              <div class="meter__label">Pitch</div>
+              <div class="meter__value meter__value--big">{{ pitchNote || '—' }}</div>
+              <div class="meter__sub" *ngIf="pitchHz">{{ pitchHz | number:'1.0-0' }} Hz</div>
+            </div>
+          </div>
+
+          <button class="btn" (click)="stopRound()">Stop</button>
+        </div>
+
+        <!-- RESULTS -->
+        <div *ngIf="stage === 'results'" class="stack">
+          <h2 class="resultTitle">Your PartyScore</h2>
+
+          <div class="score">
+            <div class="score__ring">
+              <div class="score__num">{{ lastRound?.score ?? 0 }}</div>
+              <div class="score__den">/100</div>
+            </div>
+
+            <div class="score__breakdown">
+              <div class="stat">
+                <div class="stat__k">Energy</div>
+                <div class="stat__v">{{ lastRound?.energy ?? 0 }}</div>
+              </div>
+              <div class="stat">
+                <div class="stat__k">Stability</div>
+                <div class="stat__v">{{ lastRound?.stability ?? 0 }}</div>
+              </div>
+              <div class="stat">
+                <div class="stat__k">Variety</div>
+                <div class="stat__v">{{ lastRound?.variety ?? 0 }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn btn--primary" (click)="startRound()">Play again</button>
+            <button class="btn btn--ghost" (click)="shareChallenge()">Share challenge link</button>
+          </div>
+
+          <p class="hint" *ngIf="challengeScore != null">
+            Goal: beat <strong>{{ challengeScore }}</strong>/100.
+          </p>
+        </div>
+      </div>
+
+      <div #confettiHost class="fx"></div>
+    </section>
+
+    <aside class="panel panel--board">
+      <div class="panel__inner">
+        <h3 class="sideTitle">Leaderboard</h3>
+
+        <div class="empty" *ngIf="leaderboard.length === 0">
+          No scores yet. Start a round.
+        </div>
+
+        <ol class="board" *ngIf="leaderboard.length > 0">
+          <li class="board__row" *ngFor="let e of leaderboard; index as i">
+            <div class="board__rank">{{ i + 1 }}</div>
+            <div class="board__name">{{ e.name }}</div>
+            <div class="board__score">{{ e.score }}</div>
+          </li>
+        </ol>
+
+        <div class="footer">
+          <div class="tiny">Scores saved locally on this device.</div>
+          <div class="tiny">Built with Web Audio API.</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
