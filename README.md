@@ -2,7 +2,7 @@
 
 Instant karaoke party game: sing into your mic → get a fun score → share & challenge friends.
 
-**Live demo (GitHub Pages):** https://manulus.github.io/clawd-build-20260131-2128Z-partyscore-karaoke/
+**Live demo (GitHub Pages):** https://manulus1-ai.github.io/clawd-build-20260131-2128Z-partyscore-karaoke/
 
 ## Stack
 - Frontend: Angular (static)
